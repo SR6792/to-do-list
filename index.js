@@ -18,11 +18,13 @@ document.addEventListener("DOMContentLoaded",()=>{//to ensure there is no error
         const edit=document.createElement("button");
         edit.textContent="Edit";  
 
-        const x=input.value.trim();
+        const x=taskText || input.value.trim();//checks for stored value or inp
+        if(x==="") return;
         span.textContent=x;
         li.appendChild(span);
         li.appendChild(edit);
         li.appendChild(del);
+        li.style.cssText="display:flex; gap:20px;";
         if(!taskText && x==="")//if no input and no local storage
         {
             return;//do nothing
@@ -31,20 +33,24 @@ document.addEventListener("DOMContentLoaded",()=>{//to ensure there is no error
         if(!taskText){//inseeert
             tasks.push(x);
             read();
-        }
-
-        l
+        }        
     }
-    function delT(x){
-        li.remove();
-        tasks=tasks.filter(t=>t!==x);//removes the deleted tasks
+    function delT(ele){
+        let y=ele.querySelector("span").textContent;
+        ele.remove();
+        tasks=tasks.filter(t=>t!==y);//removes the deleted tasks
         read();
     }
 
-    function insT(x){
-        const index=tasks.indexOf(x);
+    function insT(ele){//here ele means li or the main div or container where delete and edit are there
+        let y=ele.querySelector("span").textContent;
+        const index=tasks.indexOf(y);
         const newTask=prompt("enter new tasks");
-        tasks[index]=newTask;
+        if(newTask!=="")
+        {
+            tasks[index]=newTask;
+            ele.querySelector("span").textContent=newTask;
+        }
         read();
     }
     submit.addEventListener("click",()=>{
@@ -62,16 +68,16 @@ document.addEventListener("DOMContentLoaded",()=>{//to ensure there is no error
     //event bubbling for many eventlistener to one single one
     list1.addEventListener("click",(e)=>{
         if(e.target.tagName === "BUTTON"){
-            
+            liEle=e.target.parentElement;//here e is btn but we need the parent ele ie the li 
             if(e.target.textContent==="Delete"){
                 //del function
-                delT();
+                delT(liEle);
             }
             if(e.target.textContent==="Edit"){
                 //edit/update function
-                insT();
+                insT(liEle);
             }
         }
     });
-
+    console.log(Array.isArray(tasks));//checks if tasks is array so i can use 
 });
