@@ -1,66 +1,77 @@
-document.addEventListener("DOMContentLoaded",()=>{//to only load when  no error
-    const btn=document.querySelector(".submit");
+document.addEventListener("DOMContentLoaded",()=>{//to ensure there is no error 
     const input=document.querySelector(".inp");
+    const submit=document.querySelector(".submit");  
+    let tasks= JSON.parse(localStorage.getItem("tasks")) || [];//for local storage to print taks even if site change
     const list1=document.querySelector(".list");
-    let tasks= JSON.parse(localStorage.getItem("tasks"))||[];
-    tasks.forEach(task=>insertA(task));//rebuild the list on reload
+    tasks.forEach(task=>insertA(task));
+
+    //to read localstorage
+    function read(){
+        localStorage.setItem("tasks",JSON.stringify(tasks));//stores array
+    }
+
     function insertA(taskText){
+        const li=document.createElement("li");
+        const span=document.createElement("span");
         const del=document.createElement("button");
         del.textContent="Delete";
         const edit=document.createElement("button");
-        edit.textContent="Edit";
-        const li=document.createElement("li");
-        //now to put taks delete and edit key in one line use span
-        const tspan=document.createElement("span");
-        const x=taskText||input.value.trim();
-        tspan.textContent=x;
-        li.appendChild(tspan);
+        edit.textContent="Edit";  
+
+        const x=input.value.trim();
+        span.textContent=x;
+        li.appendChild(span);
         li.appendChild(edit);
         li.appendChild(del);
-        li.style.cssText=" display:flex; gap:20px;";
-        list1.style.padding="20px";
-        if(x=="")
+        if(!taskText && x==="")//if no input and no local storage
         {
-            alert("Enter string");
+            return;//do nothing
         }
-        else{
-            list1.appendChild(li);
-            input.value="";
-
-        }
-        if(!taskText){
+        list1.appendChild(li);
+        if(!taskText){//inseeert
             tasks.push(x);
-            localStorage.setItem("tasks",JSON.stringify(tasks));
+            read();
         }
-        del.addEventListener("click",()=>{
-            li.remove();
-            tasks= tasks.filter(task=>task!==x);//return task not deleted
-            localStorage.setItem("tasks",JSON.stringify(tasks));
-        })
-        edit.addEventListener("click",()=>{
-            const newI=prompt("Enter new string");
-            if(!newI) return;
-            const oldText=tspan.textContent;
-            const index=tasks.indexOf(oldText);
-            if(index!== -1){
-                tspan.textContent=newI;
-                tasks[index]=newI;
-                localStorage.setItem("tasks",JSON.stringify(tasks));
-            }
-        })
-    }
-    btn.addEventListener("click",()=>{
-        insertA();
-    });
-    input.addEventListener("keydown",function(event)
-    {   
-        if (event.key === "Enter")
-        {
-            insertA();
-        }
-    });//for event key instead of clicking
 
-    function saveTask(){
-        localStorage.setItem('tasks',JSON.stringify(tasks))
+        l
     }
+    function delT(x){
+        li.remove();
+        tasks=tasks.filter(t=>t!==x);//removes the deleted tasks
+        read();
+    }
+
+    function insT(x){
+        const index=tasks.indexOf(x);
+        const newTask=prompt("enter new tasks");
+        tasks[index]=newTask;
+        read();
+    }
+    submit.addEventListener("click",()=>{
+        insertA();
+        input.value="";
+    });
+    //so here use insertA function to insert the task to list
+    input.addEventListener("keydown",(e)=>
+    {
+        if(e.key==="Enter"){
+            insertA();
+            input.value="";
+        }
+    });
+    //event bubbling for many eventlistener to one single one
+    list1.addEventListener("click",(e)=>{
+        if(e.target.tagName === "BUTTON"){
+            
+            if(e.target.textContent==="Delete"){
+                //del function
+                delT();
+            }
+            if(e.target.textContent==="Edit"){
+                //edit/update function
+                insT();
+            }
+        }
+    });
+
 });
